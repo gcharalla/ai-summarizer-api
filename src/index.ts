@@ -1,11 +1,9 @@
-import express, { Request, Response } from "express";
+import server from './services/server'
 
-const app = express();
+const PORT = process.env.PORT || 8080
 
-app.get("/", (req: Request, res: Response) => {
-    return res.json({
-        status: "Hola mundo, feliz",
-    });
-});
+const init = async () => {
+    server.listen(PORT)
+}
 
-app.listen(4000, () => console.log("listening on port 4000"));
+init()
