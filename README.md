@@ -1,1 +1,1 @@
-# node-docker-boilerplate
+# ai-summarizer-api
