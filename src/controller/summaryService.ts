@@ -33,8 +33,13 @@ export const getSummary = async (url: string): Promise<SummaryResult> => {
 };
 
 export const generateSummary = () => {
-    const summaryData: SummaryResult = {
-        summary: createSummary().summary,
-    };
-    return summaryData;
+    try {
+        const summaryData: SummaryResult = {
+            summary: createSummary().summary,
+        };
+        return summaryData;
+    } catch (error) {
+        console.error('Error in getSummary:', error);
+        throw error;
+    }
 }
