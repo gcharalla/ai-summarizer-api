@@ -5,26 +5,37 @@ chrome.runtime.onInstalled.addListener(() => {
     });
 });
 
-function changeCursor(wait) {
-    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'changeCursor', wait: wait });
+async function getActiveTab() {
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return activeTab;
+}
+
+async function changeCursor(wait) {
+    const { id } = await getActiveTab();
+    chrome.scripting.executeScript({
+        target: { tabId: id },
+        function: (wait) => {
+            console.log('Changing cursor:', wait ? 'wait' : 'default');
+            document.body.style.cursor = wait ? 'wait' : 'default';
+        },
+        args: [wait],
     });
 }
 
 async function summarize() {
-    changeCursor(true);
     try {
-        const [currentTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-        const currentUrl = currentTab.url;
+        changeCursor(true);
+
+        const { url } = await getActiveTab();
 
         // Send URL to API
-        const apiUrl = 'http://localhost:8080/api/summarize'; // Cambiado a HTTPS
+        const apiUrl = 'http://localhost:8080/api/mock';
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ url: currentUrl }),
+            body: JSON.stringify({ url: url }),
         });
 
         if (!response.ok) {
@@ -34,7 +45,6 @@ async function summarize() {
         const data = await response.json();
 
         if (data.newUrl) {
-            changeCursor(false);
             chrome.tabs.create({ url: data.newUrl });
         } else {
             throw new Error('Unexpected response from the server');
@@ -42,6 +52,7 @@ async function summarize() {
 
     } catch (error) {
         console.error('Error summarizing:', error);
+    } finally {
         changeCursor(false);
     }
 }

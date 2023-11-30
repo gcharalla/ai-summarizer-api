@@ -1,9 +1,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import config from '../config/api';
-
-export interface SummaryResult {
-    summary: string;
-}
+import createSummary from '../config/mock';
+import { SummaryResult } from '../types/types';
 
 export const getSummary = async (url: string): Promise<SummaryResult> => {
     const options: AxiosRequestConfig = {
@@ -33,3 +31,15 @@ export const getSummary = async (url: string): Promise<SummaryResult> => {
         throw error;
     }
 };
+
+export const generateSummary = () => {
+    try {
+        const summaryData: SummaryResult = {
+            summary: createSummary().summary,
+        };
+        return summaryData;
+    } catch (error) {
+        console.error('Error in getSummary:', error);
+        throw error;
+    }
+}
